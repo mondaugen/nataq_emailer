@@ -7,19 +7,21 @@ import os
 
 env=os.environ
 
-with open('./fromemail.txt','r') as f:
-    fromaddr = f.read().strip()
-
+fromaddr = env['FROM_EMAIL']
 toaddr = env['EMAIL_ADDRESS']
+emailmsgpath= env['EMAIL_MESSAGE']
+emailpassword = env['EMAIL_PASSWORD']
+emailsubject = env['EMAIL_SUBJECT']
 
 msg = MIMEMultipart()
 
 msg['From'] = fromaddr
 msg['To'] = toaddr
-msg['Subject'] = "Your Recording"
+msg['Subject'] = emailsubject
 
-with open('./emailmessage.txt','r') as f:
-    body = f.read().format(NAME=env['NAME'],encoding="utf-8")
+with open(emailmsgpath,'r') as f:
+    firstname=env['NAME'].split(' ')[0]
+    body = f.read().format(NAME=firstname,encoding="utf-8")
 
 msg.attach(MIMEText(body, 'plain'))
 
@@ -30,20 +32,14 @@ part = MIMEBase('application', 'octet-stream')
 part.set_payload((attachment).read())
 encoders.encode_base64(part)
 part.add_header('Content-Disposition', "attachment; filename= %s" %
-       filename)
+       os.path.basename(filename))
 
 msg.attach(part)
 
 server = smtplib.SMTP('smtp.gmail.com', 587)
 server.starttls()
-with open('./fromemailpass.txt','r') as f:
-    passwd=f.read()
-    # Strip trailing new line. Not sure if this is consistent for all editors,
-    # so we check if it is there first.
-    if passwd[-1] == '\n':
-        passwd=passwd[:-1]
 
-server.login(fromaddr,passwd)
+server.login(fromaddr,emailpassword)
 text = msg.as_string()
 server.sendmail(fromaddr, toaddr, text)
 server.quit()
