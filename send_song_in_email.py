@@ -25,16 +25,15 @@ with open(emailmsgpath,'r') as f:
 
 msg.attach(MIMEText(body, 'plain'))
 
-filename = env['FILENAME']
-attachment = open(filename, "rb")
-
-part = MIMEBase('application', 'octet-stream')
-part.set_payload((attachment).read())
-encoders.encode_base64(part)
-part.add_header('Content-Disposition', "attachment; filename= %s" %
-       os.path.basename(filename))
-
-msg.attach(part)
+for i in range(1,len(sys.argv)):
+    filename = sys.argv[i]
+    with open(filename, "rb") as attachment:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload((attachment).read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', "attachment; filename= %s" %
+               os.path.basename(filename))
+        msg.attach(part)
 
 server = smtplib.SMTP('smtp.gmail.com', 587)
 server.starttls()
