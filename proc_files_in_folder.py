@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import os, subprocess
+import os, subprocess, pickle
 
 LOGFILENAME='/tmp/nataq_emailer_logfile'
 opt={
     'SFENDING':'wav',
-    'SFPATH':'stuff for the test/Test CMPL 2018',
+    'SFPATH':'stuff for the test/some_sfs',
     'CSVFILE':'stuff for the test/camper info.csv',
-    'META_DATE':2018,
+    'META_DATE':'2018',
     'META_ALBUM_NAME':'Camp musical Père Lindsay été 2018',
     'META_ALBUM_PICTURE':'stuff for the test/cmpl2018.png',
     'EMAIL_MESSAGE':'emailmessage.txt',
     'FROM_EMAIL':'nicholas.esterer@gmail.com',
     'EMAIL_PASSWORD':'password',
     'EMAIL_SUBJECT':'Test message',
+    '_LOAD_OLD_SFS':'0'
 }
 
 # Open log file
@@ -35,33 +36,37 @@ with open(opt['CSVFILE'],'r') as f:
 
 # load and convert soundfiles, store them in a dictionary under the name
 # entry
-soundfiles=dict()
-for sfname in os.listdir(opt['SFPATH']):
-    # Assert wav file
-    if sfname.split('.')[-1].lower() == opt['SFENDING']:
-        # get names from filename
-        logfile.write('original file: %s\n' % (sfname,))
-        sfname_='.'.join(sfname.split('.')[:-1])
-        names=sfname_.split('_')
-        # Convert soundfile and attach metadata
-        meta_cmd="""\
-                TITLE="{names}" \
-                ARTIST="{names}" \
-                ALBUM="{opt[META_ALBUM_NAME]}" \
-                DATE="{opt[META_DATE]}" \
-                ALBUM_PICTURE="{opt[META_ALBUM_PICTURE]}" \
-                FILENAME="{filename}" \
-                {prog}
-                """.format(opt=opt,
-                        names=', '.join(names),
-                        filename=os.path.join(opt['SFPATH'],sfname),
-                        prog=os.path.join(os.getcwd(),'add_meta.sh'))
-        conv_filename=subprocess.check_output(meta_cmd,shell=True).strip()
-        for name in names:
-            if name in soundfiles.keys():
-                soundfiles[name].append(conv_filename)
-            else:
-                soundfiles[name]=[conv_filename]
+if int(opt['_LOAD_OLD_SFS']):
+    soundfiles=pickle.load('/tmp/nataq_emailer_soundfiles')
+else:
+    soundfiles=dict()
+    for sfname in os.listdir(opt['SFPATH']):
+        # Assert wav file
+        if sfname.split('.')[-1].lower() == opt['SFENDING']:
+            # get names from filename
+            logfile.write('original file: %s\n' % (sfname,))
+            sfname_='.'.join(sfname.split('.')[:-1])
+            names=sfname_.split('_')
+            # Convert soundfile and attach metadata
+            meta_cmd="""\
+                    TITLE="{names}" \
+                    ARTIST="{names}" \
+                    ALBUM="{opt[META_ALBUM_NAME]}" \
+                    DATE="{opt[META_DATE]}" \
+                    ALBUM_PICTURE="{opt[META_ALBUM_PICTURE]}" \
+                    FILENAME="{filename}" \
+                    {prog}
+                    """.format(opt=opt,
+                            names=', '.join(names),
+                            filename=os.path.join(opt['SFPATH'],sfname),
+                            prog=os.path.join(os.getcwd(),'add_meta.sh'))
+            conv_filename=subprocess.check_output(meta_cmd,shell=True).strip()
+            for name in names:
+                if name in soundfiles.keys():
+                    soundfiles[name].append(conv_filename)
+                else:
+                    soundfiles[name]=[conv_filename]
+    pickle.dump(soundfiles,'/tmp/nataq_emailer_soundfiles')
 
 # Send emails with attachment(s) to each name
 

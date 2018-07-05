@@ -4,6 +4,7 @@ from email.MIMEText import MIMEText
 from email.MIMEBase import MIMEBase
 from email import encoders
 import os
+import sys
 
 env=os.environ
 
