@@ -11,3 +11,4 @@ test
 stuff for the test
 .dist
 .DS_Store
+._*
