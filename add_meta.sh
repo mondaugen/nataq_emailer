@@ -5,7 +5,7 @@
 # ARTIST the performer
 # ALBUM album title
 # DATE the date of performance
-FFMPEG="$(dirname $0)/ffmpeg"
+FFMPEG="$(dirname $0)/ffmpeg_linux"
 format=mp3
 title_stub=$(python -c "print('.'.join(\"${FILENAME}\".split('.')[:-1]))")
 tmp_out_file="${title_stub}_.${format}" 

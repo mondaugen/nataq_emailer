@@ -12,3 +12,4 @@ stuff for the test
 .dist
 .DS_Store
 ._*
+ffmpeg*

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+eval "$(wish $(dirname $0)/gui.tcl)"
+
+#export
+
+#export _LOAD_OLD_SFS=1
+python $(dirname $0)/proc_files_in_folder.py
+
+#cat /tmp/nataq_emailer_logfile
+wish $(dirname $0)/show_errors.tcl

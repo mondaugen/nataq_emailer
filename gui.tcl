@@ -9,24 +9,28 @@ frame .f_subject
 label .l_subject -text "Subject:"  \
     -anchor e
 entry .e_subject -width $entry_width
+.e_subject insert 0 "Example Subject"
 pack .l_subject .e_subject -side left -in .f_subject
 
 frame .f_album_name
 label .l_album_name -text "Album Name:"  \
     -anchor e
 entry .e_album_name -width $entry_width
+.e_album_name insert 0 "Example Album Name"
 pack .l_album_name .e_album_name -side left -in .f_album_name
 
 frame .f_recording_year
 label .l_recording_year -text "Recording Year (optional)"  \
     -anchor e
 entry .e_recording_year -width $entry_width
+.e_recording_year insert 0 "1999"
 pack .l_recording_year .e_recording_year -side left -in .f_recording_year
 
 frame .f_from_email
 label .l_from_email -text "Sender's Email:"  \
     -anchor e
 entry .e_from_email -width $entry_width
+.e_from_email insert 0 "nicholas.esterer@gmail.com"
 pack .l_from_email .e_from_email -side left -in .f_from_email
 
 frame .f_from_email_pass
@@ -51,6 +55,8 @@ label .l_sfpath -text "Path to Soundfiles:" \
     -anchor e
 button .b_sfpath -text "Choose Soundfiles" -command choose_path_to_sfs
 entry .e_sfpath -width $entry_width
+.e_sfpath insert 0 \
+    "/home/sandman/Documents/development/nataq_emailer/stuff for the test/some_sfs"
 pack .l_sfpath .e_sfpath .b_sfpath \
     -side left -in .f_sfpath
 
@@ -69,6 +75,8 @@ label .l_csvpath -text "Path to Name and Email File (CSV)" \
     -anchor e
 button .b_csvpath -text "Choose CSV File" -command choose_path_to_csv
 entry .e_csvpath -width $entry_width
+.e_csvpath insert 0 \
+    "/home/sandman/Documents/development/nataq_emailer/stuff for the test/camper info.csv"
 pack .l_csvpath .e_csvpath .b_csvpath \
     -side left -in .f_csvpath
 
@@ -89,6 +97,8 @@ label .l_album_art -text "Path to Album Art (jpg or png)" \
 button .b_album_art -text "Choose Image" \
     -command choose_path_to_img
 entry .e_album_art -width $entry_width
+.e_album_art insert 0 \
+    "/home/sandman/Documents/development/nataq_emailer/stuff for the test/cmpl2018.png"
 pack .l_album_art .e_album_art .b_album_art \
     -side left -in .f_album_art
 
@@ -96,17 +106,19 @@ set path_to_msg ""
 proc choose_path_to_msg {} {
     set path_to_msg [tk_getOpenFile \
         -title "Choose path to name and email list..."  \
-        -filetypes {{{CSV Files} {.msg .CSV}}} ]
+        -filetypes {{{Text Files} {.txt .TXT}}} ]
     #puts $path_to_msg
     .e_msgpath delete 0 end
     .e_msgpath insert 0 $path_to_msg
 }
 
 frame .f_msgpath
-label .l_msgpath -text "Path to Name and Email File (CSV)" \
+label .l_msgpath -text "Path to Email Message" \
     -anchor e
-button .b_msgpath -text "Choose CSV File" -command choose_path_to_msg
+button .b_msgpath -text "Choose Message" -command choose_path_to_msg
 entry .e_msgpath -width $entry_width
+.e_msgpath insert 0 \
+    "/home/sandman/Documents/development/nataq_emailer/emailmessage.txt"
 pack .l_msgpath .e_msgpath .b_msgpath \
     -side left -in .f_msgpath
 
@@ -125,7 +137,8 @@ set frames { \
     .f_sfpath \
     .f_csvpath \
     .f_album_art \
-    .f_send
+    .f_msgpath \
+    .f_send \
 }
 
 pack {*}$frames \
@@ -156,8 +169,11 @@ foreach x $labels {
 # When finished, print out environment variables
 proc send_and_quit {} {
 puts [format {
-    SFPATH="%s" CSVFILE="%s" META_DATE="%s" \
-    META_ALBUM_NAME="%s" META_ALBUM_PICTURE="%s" \
+    export SFPATH="%s" \
+    CSVFILE="%s" \
+    META_DATE="%s" \
+    META_ALBUM_NAME="%s" \
+    META_ALBUM_PICTURE="%s" \
     EMAIL_MESSAGE="%s" \
     FROM_EMAIL="%s" \
     EMAIL_PASSWORD="%s" \
@@ -167,7 +183,11 @@ puts [format {
   [.e_recording_year get] \
   [.e_album_name get] \
   [.e_album_art get] \
-  []]
+  [.e_msgpath get] \
+  [.e_from_email get] \
+  [.e_from_email_pass get] \
+  [.e_subject get]]
+
 destroy .
 }
 

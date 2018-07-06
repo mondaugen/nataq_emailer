@@ -37,7 +37,8 @@ with open(opt['CSVFILE'],'r') as f:
 # load and convert soundfiles, store them in a dictionary under the name
 # entry
 if int(opt['_LOAD_OLD_SFS']):
-    soundfiles=pickle.load('/tmp/nataq_emailer_soundfiles')
+    with open('/tmp/nataq_emailer_soundfiles','r') as fi:
+        soundfiles=pickle.load(fi)
 else:
     soundfiles=dict()
     for sfname in os.listdir(opt['SFPATH']):
@@ -66,7 +67,8 @@ else:
                     soundfiles[name].append(conv_filename)
                 else:
                     soundfiles[name]=[conv_filename]
-    pickle.dump(soundfiles,'/tmp/nataq_emailer_soundfiles')
+    with open('/tmp/nataq_emailer_soundfiles','w') as fi:
+        pickle.dump(soundfiles,fi)
 
 # Send emails with attachment(s) to each name
 
